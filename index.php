@@ -1,11 +1,23 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>PRG120V Oppgave</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRG120V-Oppgave</title>
 </head>
 <body>
-    <h1>PRG120V — Student og Klasse</h1>
-    <p>nice</p>
+    <h1>PRG120V - Brukerfunksjoner - Oppgave</h1>
+
+<h2>Klasser</h2>
+<ul>
+    <li><a href="klasse.php">Manage classes</a></li>
+</ul>
+
+<h2>Studenter</h2>
+<ul>
+    <li><a href="student.php">Manage students</a></li>
+</ul>
+
 </body>
 </html>
