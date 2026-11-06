@@ -2,7 +2,7 @@
 require_once 'db.php';
 
 // Hent alle klasser for dropdown
-$klasse_sql = "SELECT klasse_kode, klasse_navn FROM klasse";
+$klasse_sql = "SELECT klassekode, klasse_navn FROM klasse";
 $klasse_result = $conn->query($klasse_sql);
 
 // Håndter sletting av student
