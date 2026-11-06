@@ -16,12 +16,12 @@ require_once 'db.php';
 
 <h2>Klasser</h2>
 <ul>
-    <li><a href="klasse.php">Manage classes</a></li>
+    <li><a href="klasse.php">Administrer klasser</a></li>
 </ul>
 
 <h2>Studenter</h2>
 <ul>
-    <li><a href="student.php">Manage students</a></li>
+    <li><a href="student.php">Administrer studenter</a></li>
 </ul>
 
 </body>
