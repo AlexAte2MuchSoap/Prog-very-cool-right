@@ -25,14 +25,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_student'])) {
     $brukernavn = trim($_POST['brukernavn']);
     $fornavn = trim($_POST['fornavn']);
     $etternavn = trim($_POST['etternavn']);
-    $klasse_kode = $_POST['klasse_kode'];
+    $klassekode = $_POST['klassekode']; // Bruk 'klassekode' uten understrek
 
     if (empty($brukernavn) || empty($fornavn) || empty($etternavn)) {
         $error = "Alle felt må fylles ut!";
     } else {
-        $sql = "INSERT INTO student (brukernavn, fornavn, etternavn, klasse_kode) VALUES (?, ?, ?, ?)";
+        // Bruk 'klassekode' uten understrek i INSERT-spørringen også
+        $sql = "INSERT INTO student (brukernavn, fornavn, etternavn, klassekode) VALUES (?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssss", $brukernavn, $fornavn, $etternavn, $klasse_kode);
+        $stmt->bind_param("ssss", $brukernavn, $fornavn, $etternavn, $klassekode);
 
         if ($stmt->execute()) {
             $message = "Student lagt til vellykket!";
@@ -44,9 +45,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_student'])) {
 }
 
 // Hent alle studenter med tilhørende klasse-navn
+// Bruk 'klassekode' uten understrek i JOIN og SELECT
 $student_sql = "SELECT s.student_id, s.brukernavn, s.fornavn, s.etternavn, k.klasse_navn
                 FROM student s
-                LEFT JOIN klasse k ON s.klasse_kode = k.klasse_kode";
+                LEFT JOIN klasse k ON s.klassekode = k.klasse_kode";
 $student_result = $conn->query($student_sql);
 ?>
 
@@ -94,8 +96,9 @@ $student_result = $conn->query($student_sql);
         <label for="etternavn">Etternavn:</label>
         <input type="text" name="etternavn" id="etternavn" required>
         
-        <label for="klasse_kode">Klasse:</label>
-        <select name="klasse_kode" id="klasse_kode" required>
+        <label for="klassekode">Klasse:</label>
+        <!-- Endret name-attributtet til 'klassekode' -->
+        <select name="klassekode" id="klassekode" required>
             <option value="">Velg en klasse</option>
             <?php
             if ($klasse_result) {
@@ -152,3 +155,4 @@ $student_result = $conn->query($student_sql);
     </table>
 </body>
 </html>
+
