@@ -1,6 +1,6 @@
 <?php
 
-$host = 'Tjener: b-studentsql-1.usn.no';
+$host = 'b-studentsql-1.usn.no';
 $port = '3306';
 $dbname = 'alamu3205';
 $username = 'alamu3205';
