@@ -1,154 +1,76 @@
 <?php
-require_once 'db.php';
+include("db.php");
 
-// Hent alle klasser for dropdown
-$klasse_sql = "SELECT klassekode, klasse_navn FROM klasse";
-$klasse_result = $conn->query($klasse_sql);
+if (isset($_POST["registrerStudentKnapp"]))
+{
+    $brukernavn = mysqli_real_escape_string($db, $_POST["brukernavn"]);
+    $fornavn = mysqli_real_escape_string($db, $_POST["fornavn"]);
+    $etternavn = mysqli_real_escape_string($db, $_POST["etternavn"]);
+    $klassekode = mysqli_real_escape_string($db, $_POST["klassekode"]);
 
-// Håndter sletting av student
-if (isset($_GET['delete_student'])) {
-    $student_id = $_GET['delete_student'];
-    $sql = "DELETE FROM student WHERE student_id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $student_id);
-
-    if ($stmt->execute()) {
-        $message = "Student slettet vellykket!";
-    } else {
-        $error = "Feil ved sletting: " . $stmt->error;
-    }
-    $stmt->close();
+    $sqlSetning = "INSERT INTO student VALUES('$brukernavn', '$fornavn', '$etternavn', '$klassekode')";
+    mysqli_query($db, $sqlSetning) or die("Ikke mulig å registrere student. Sjekk brukernavn og klasse.");
+    print("Studenten er registrert");
 }
 
-// Håndter legg til ny student
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_student'])) {
-    $brukernavn = trim($_POST['brukernavn']);
-    $fornavn = trim($_POST['fornavn']);
-    $etternavn = trim($_POST['etternavn']);
-    $klassekode = $_POST['klassekode'];
-
-    if (empty($brukernavn) || empty($fornavn) || empty($etternavn)) {
-        $error = "Alle felt må fylles ut!";
-    } else {
-        $sql = "INSERT INTO student (brukernavn, fornavn, etternavn, klassekode) VALUES (?, ?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssss", $brukernavn, $fornavn, $etternavn, $klassekode);
-
-        if ($stmt->execute()) {
-            $message = "Student lagt til vellykket!";
-        } else {
-            $error = "Feil ved tilsetting: " . $stmt->error;
-        }
-        $stmt->close();
-    }
+if (isset($_POST["slettStudentKnapp"]))
+{
+    $brukernavn = mysqli_real_escape_string($db, $_POST["brukernavn"]);
+    $sqlSetning = "DELETE FROM student WHERE brukernavn='$brukernavn'";
+    mysqli_query($db, $sqlSetning) or die("Ikke mulig å slette student");
+    print("Studenten er slettet");
 }
 
-// Hent alle studenter med tilhørende klasse-navn
-$student_sql = "SELECT s.student_id, s.brukernavn, s.fornavn, s.etternavn, k.klasse_navn
-                FROM student s
-                LEFT JOIN klasse k ON s.klassekode = k.klasse_kode";
-$student_result = $conn->query($student_sql);
+$klasseResultat = mysqli_query($db, "SELECT * FROM klasse")
+    or die("Ikke mulig å hente klasser");
+$studentResultat = mysqli_query($db, "SELECT * FROM student")
+    or die("Ikke mulig å hente studenter");
 ?>
-
 <!DOCTYPE html>
 <html lang="no">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administrer Studenter</title>
-    <style>
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        a { text-decoration: none; color: #007bff; }
-        a:hover { text-decoration: underline; }
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        form { margin-bottom: 20px; }
-        input[type="text"], select { padding: 5px; margin-right: 10px; margin-bottom: 10px; }
-        button { padding: 5px 10px; cursor: pointer; }
-        .message { padding: 10px; margin: 10px 0; border-radius: 4px; }
-        .success { background-color: #d4edda; color: #155724; }
-        .error { background-color: #f8d7da; color: #721c24; }
-    </style>
+    <title>Administrer studenter</title>
 </head>
 <body>
-    <h1>Administrer Studenter</h1>
+    <h1>Administrer studenter</h1>
+    <p><a href="index.html">Til forsiden</a> | <a href="klasse.php">Administrer klasser</a></p>
 
-    <!-- Meldinger -->
-    <?php if (isset($message)): ?>
-        <div class="message success"><?= htmlspecialchars($message) ?></div>
-    <?php endif; ?>
-    <?php if (isset($error)): ?>
-        <div class="message error"><?= htmlspecialchars($error) ?></div>
-    <?php endif; ?>
-
-    <!-- Skjema for å legge til ny student -->
-    <form method="POST">
-        <h2>Legg til ny student</h2>
-        <label for="brukernavn">Brukernavn:</label>
-        <input type="text" name="brukernavn" id="brukernavn" required>
-        
-        <label for="fornavn">Fornavn:</label>
-        <input type="text" name="fornavn" id="fornavn" required>
-        
-        <label for="etternavn">Etternavn:</label>
-        <input type="text" name="etternavn" id="etternavn" required>
-        
-        <label for="klassekode">Klasse:</label>
-        <select name="klassekode" id="klassekode" required>
-            <option value="">Velg en klasse</option>
-            <?php
-            if ($klasse_result) {
-                $klasse_result->data_seek(0);
-                while ($klasse = $klasse_result->fetch_assoc()):
-            ?>
-                <option value="<?= htmlspecialchars($klasse['klasse_kode'] ?? '') ?>">
-                    <?= htmlspecialchars($klasse['klasse_navn'] ?? '') ?>
-                </option>
-            <?php
-                endwhile;
-            }
-            ?>
-        </select>
-        
-        <button type="submit" name="add_student">Legg til student</button>
+    <h2>Registrer student</h2>
+    <form method="post">
+        <p>Brukernavn: <input type="text" name="brukernavn" required></p>
+        <p>Fornavn: <input type="text" name="fornavn" required></p>
+        <p>Etternavn: <input type="text" name="etternavn" required></p>
+        <p>
+            Klasse:
+            <select name="klassekode" required>
+                <?php while ($klasse = mysqli_fetch_array($klasseResultat)) { ?>
+                    <option value="<?php print(htmlspecialchars($klasse["klassekode"])); ?>">
+                        <?php print(htmlspecialchars($klasse["klassekode"] . " - " . $klasse["klassenavn"])); ?>
+                    </option>
+                <?php } ?>
+            </select>
+        </p>
+        <p><input type="submit" name="registrerStudentKnapp" value="Registrer student"></p>
     </form>
 
-    <hr>
-
-    <!-- Liste over alle studenter -->
-    <h2>Eksisterende studenter</h2>
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Brukernavn</th>
-            <th>Fornavn</th>
-            <th>Etternavn</th>
-            <th>Klasse</th>
-            <th>Handling</th>
-        </tr>
-        <?php if ($student_result && $student_result->num_rows > 0): ?>
-            <?php
-            $student_result->data_seek(0);
-            while ($student = $student_result->fetch_assoc()):
-            ?>
-                <tr>
-                    <td><?= htmlspecialchars($student['student_id'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($student['brukernavn'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($student['fornavn'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($student['etternavn'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($student['klasse_navn'] ?? 'Ingen klasse') ?></td>
-                    <td>
-                        <a href="?delete_student=<?= urlencode($student['student_id'] ?? '') ?>"
-                           onclick="return confirm('Er du sikker på at du vil slette denne studenten?')">Slett</a>
-                    </td>
-                </tr>
-            <?php endwhile; ?>
-        <?php else: ?>
+    <h2>Alle studenter</h2>
+    <table border="1">
+        <tr><th>Brukernavn</th><th>Fornavn</th><th>Etternavn</th><th>Klassekode</th><th></th></tr>
+        <?php while ($rad = mysqli_fetch_array($studentResultat)) { ?>
             <tr>
-                <td colspan="6">Ingen studenter funnet.</td>
+                <td><?php print(htmlspecialchars($rad["brukernavn"])); ?></td>
+                <td><?php print(htmlspecialchars($rad["fornavn"])); ?></td>
+                <td><?php print(htmlspecialchars($rad["etternavn"])); ?></td>
+                <td><?php print(htmlspecialchars($rad["klassekode"])); ?></td>
+                <td>
+                    <form method="post" onsubmit="return confirm('Er du sikker på at du vil slette denne studenten?');">
+                        <input type="hidden" name="brukernavn" value="<?php print(htmlspecialchars($rad["brukernavn"])); ?>">
+                        <input type="submit" name="slettStudentKnapp" value="Slett">
+                    </form>
+                </td>
             </tr>
-        <?php endif; ?>
+        <?php } ?>
     </table>
 </body>
 </html>
