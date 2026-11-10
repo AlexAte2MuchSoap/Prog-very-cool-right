@@ -1,18 +1,13 @@
-<?php
+<?php  /* db-tilkobling */
+/*
+/*  Programmet foretar tilkobling til database-server og valg av database
+*/
+$host = getenv('b-studentsql-1.usn.no');
+$username = getenv('alamu3205');
+$password = getenv('alamu3205');
+$database = getenv('alamu3205');
+$port = getenv('3306');
 
-$host = 'b-studentsql-1.usn.no';
-$port = '3306';
-$dbname = 'alamu3205';
-$username = 'alamu3205';
-$password = 'bfdealamu3205';
-
-$conn = new mysqli($host . ':' . $port, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    die("Database connection failed: " . $conn->connect_error);
-}
-
-$conn->set_charset("utf8mb4");
-
-echo "Database connection successful!";
-?>
+ $db=mysqli_connect($host,$username,$password,$database) or die ("ikke kontakt med database-server");
+    /* tilkobling til database-serveren utført */
+ ?>
