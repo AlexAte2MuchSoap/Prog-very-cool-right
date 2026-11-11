@@ -31,6 +31,9 @@ $studentResultat = mysqli_query($db, "SELECT * FROM student")
 <head>
     <meta charset="UTF-8">
     <title>Administrer studenter</title>
+    <style>
+        body {background-color: #c2dbb8;}
+    </style>
 </head>
 <body>
     <h1>Administrer studenter</h1>
