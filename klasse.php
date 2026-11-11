@@ -28,6 +28,9 @@ $sqlResultat = mysqli_query($db, $sqlSetning) or die("Ikke mulig å hente klasse
 <head>
     <meta charset="UTF-8">
     <title>Administrer klasser</title>
+    <style>
+        body {background-color: #c2dbb8;}
+    </style>
 </head>
 <body>
     <h1>Administrer klasser</h1>
