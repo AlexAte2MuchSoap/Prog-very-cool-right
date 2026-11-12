@@ -1,3 +1,4 @@
+
 <?php
 include("db.php");
 
@@ -8,16 +9,45 @@ if (isset($_POST["registrerKlasseKnapp"]))
     $studiumkode = mysqli_real_escape_string($db, $_POST["studiumkode"]);
 
     $sqlSetning = "INSERT INTO klasse VALUES('$klassekode', '$klassenavn', '$studiumkode')";
-    mysqli_query($db, $sqlSetning) or die("Ikke mulig å registrere klasse");
-    print("Klassen er registrert");
+
+    if (mysqli_query($db, $sqlSetning))
+    {
+        print("Klassen er registrert");
+    }
+    else
+    {
+        if (mysqli_errno($db) == 1062)
+        {
+            print("Feil: Klassekoden finnes allerede. Velg en annen klassekode.");
+        }
+        else
+        {
+            print("Det oppstod en feil ved registrering av klassen. Kontroller opplysningene og prøv igjen.");
+        }
+    }
 }
 
 if (isset($_POST["slettKlasseKnapp"]))
 {
     $klassekode = mysqli_real_escape_string($db, $_POST["klassekode"]);
+
     $sqlSetning = "DELETE FROM klasse WHERE klassekode='$klassekode'";
-    mysqli_query($db, $sqlSetning) or die("Ikke mulig å slette klasse. Sjekk om studenter tilhører klassen.");
-    print("Klassen er slettet");
+
+    if (mysqli_query($db, $sqlSetning))
+    {
+        print("Klassen er slettet");
+    }
+    else
+    {
+        if (mysqli_errno($db) == 1451)
+        {
+            print("Klassen kan ikke slettes fordi det er registrert studenter i klassen. Slett eller flytt studentene før du prøver igjen.");
+        }
+        else
+        {
+            print("Det oppstod en feil ved sletting av klassen. Prøv igjen.");
+        }
+    }
 }
 
 $sqlSetning = "SELECT * FROM klasse";
