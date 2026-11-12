@@ -2,6 +2,8 @@
 <?php
 include("db.php");
 
+$melding = "";
+
 if (isset($_POST["registrerKlasseKnapp"]))
 {
     $klassekode = mysqli_real_escape_string($db, $_POST["klassekode"]);
@@ -10,19 +12,20 @@ if (isset($_POST["registrerKlasseKnapp"]))
 
     $sqlSetning = "INSERT INTO klasse VALUES('$klassekode', '$klassenavn', '$studiumkode')";
 
-    if (mysqli_query($db, $sqlSetning))
+    try
     {
-        print("Klassen er registrert");
+        mysqli_query($db, $sqlSetning);
+        $melding = "Klassen er registrert!";
     }
-    else
+    catch (mysqli_sql_exception $e)
     {
-        if (mysqli_errno($db) == 1062)
+        if ($e->getCode() == 1062)
         {
-            print("Feil: Klassekoden finnes allerede. Velg en annen klassekode.");
+            $melding = "Det er ikke mulig å registrere klassen. Klassekoden finnes allerede! Velg en annen klassekode.";
         }
         else
         {
-            print("Det oppstod en feil ved registrering av klassen. Kontroller opplysningene og prøv igjen.");
+            $melding = "Det oppstod en feil ved registrering av klassen. Kontroller opplysningene og prøv igjen.";
         }
     }
 }
@@ -33,21 +36,28 @@ if (isset($_POST["slettKlasseKnapp"]))
 
     $sqlSetning = "DELETE FROM klasse WHERE klassekode='$klassekode'";
 
-    if (mysqli_query($db, $sqlSetning))
+    try
     {
-        print("Klassen er slettet");
+        mysqli_query($db, $sqlSetning);
+        $melding = "Klassen er slettet!";
     }
-    else
+    catch (mysqli_sql_exception $e)
     {
-        if (mysqli_errno($db) == 1451)
+        if ($e->getCode() == 1451)
         {
-            print("Klassen kan ikke slettes fordi det er registrert studenter i klassen. Slett eller flytt studentene før du prøver igjen.");
+            $melding = "Det er ikke mulig å slette klassen fordi det er registrert studenter i denne klassen!";
         }
         else
         {
-            print("Det oppstod en feil ved sletting av klassen. Prøv igjen.");
+            $melding = "Det oppstod en feil ved sletting av klassen. Prøv igjen.";
         }
     }
+}
+
+// Viser popup-melding dersom noe har skjedd
+if ($melding != "")
+{
+    echo "<script>alert(" . json_encode($melding) . ");</script>";
 }
 
 $sqlSetning = "SELECT * FROM klasse";
