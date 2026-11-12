@@ -1,5 +1,8 @@
+
 <?php
 include("db.php");
+
+$melding = "";
 
 if (isset($_POST["registrerStudentKnapp"]))
 {
@@ -9,20 +12,51 @@ if (isset($_POST["registrerStudentKnapp"]))
     $klassekode = mysqli_real_escape_string($db, $_POST["klassekode"]);
 
     $sqlSetning = "INSERT INTO student VALUES('$brukernavn', '$fornavn', '$etternavn', '$klassekode')";
-    mysqli_query($db, $sqlSetning) or die("Ikke mulig å registrere student. Sjekk brukernavn og klasse.");
-    print("Studenten er registrert");
+
+    try
+    {
+        mysqli_query($db, $sqlSetning);
+        $melding = "Studenten er registrert!";
+    }
+    catch (mysqli_sql_exception $e)
+    {
+        if ($e->getCode() == 1062)
+        {
+            $melding = "Det er ikke mulig å registrere studenten. Brukernavnet finnes allerede! Velg et annet brukernavn.";
+        }
+        else
+        {
+            $melding = "Det oppstod en feil ved registrering av studenten. Kontroller brukernavn og klasse.";
+        }
+    }
 }
 
 if (isset($_POST["slettStudentKnapp"]))
 {
     $brukernavn = mysqli_real_escape_string($db, $_POST["brukernavn"]);
+
     $sqlSetning = "DELETE FROM student WHERE brukernavn='$brukernavn'";
-    mysqli_query($db, $sqlSetning) or die("Ikke mulig å slette student");
-    print("Studenten er slettet");
+
+    try
+    {
+        mysqli_query($db, $sqlSetning);
+        $melding = "Studenten er slettet!";
+    }
+    catch (mysqli_sql_exception $e)
+    {
+        $melding = "Det oppstod en feil ved sletting av studenten. Prøv igjen.";
+    }
+}
+
+// Viser popup-melding dersom noe har skjedd
+if ($melding != "")
+{
+    echo "<script>alert(" . json_encode($melding) . ");</script>";
 }
 
 $klasseResultat = mysqli_query($db, "SELECT * FROM klasse")
     or die("Ikke mulig å hente klasser");
+
 $studentResultat = mysqli_query($db, "SELECT * FROM student")
     or die("Ikke mulig å hente studenter");
 ?>
